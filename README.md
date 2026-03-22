@@ -88,7 +88,10 @@ The solution is to **pair the sauna directly to the Smart Life app**, bypassing 
 2. **Add the device in Smart Life:**
    - Open Smart Life → tap **"+"** → **"Add Device"**
    - Select any device category (e.g., "Socket (Wi-Fi)" — the category doesn't matter)
-   - **Important:** Do NOT use auto-scan. Look for **"AP Mode"**, **"Compatible Mode (AP)"**, or **"Hotspot Mode"** — it's often a small text link near the bottom of the screen. You must select this mode.
+   - The app will ask about the device's indicator light behavior. This is how it determines the pairing mode:
+     - **"Fast blink"** = **EZ Mode** — the app broadcasts WiFi credentials over the air. This does **NOT** work for the SaunaLogic2.
+     - **"Slow blink"** = **AP Mode (Hotspot Mode)** — the app connects to the device's WiFi hotspot to transfer credentials. This is the mode you need. **Select "slow blink."**
+   - If the app doesn't ask about blink speed, look for a text link labeled **"AP Mode"**, **"Compatible Mode (AP)"**, or **"Hotspot Mode"** — it's often a small link near the bottom of the screen or behind a "my device doesn't blink rapidly" option.
    - Enter your **home WiFi network name (SSID)** and **password** (must be 2.4 GHz)
    - The app will tell you to connect to the `SmartLife-XXXX` hotspot
 
