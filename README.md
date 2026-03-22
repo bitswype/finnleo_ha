@@ -11,7 +11,7 @@ If you just want to get your SaunaLogic2 working with Home Assistant:
 1. **Pair your sauna to the [Smart Life](https://apps.apple.com/us/app/smart-life-smart-living/id1115101477) app** (not the SaunaLogic app — see [why](#the-oem-problem))
 2. **Install [tuya_local](https://github.com/make-all/tuya_local)** via HACS
 3. **Copy [`tylohelo_sl2_sauna.yaml`](#device-definition)** to your `custom_components/tuya_local/devices/` directory
-4. **Add the device** in tuya_local using your device ID and local key from the Tuya developer console
+4. **Add the device** in tuya_local using your device ID and local key (create a free [Tuya IoT developer account](https://iot.tuya.com/), create a Cloud project with the Western America data center, link your Smart Life account under Devices, and find your sauna's device ID and local key. Alternatively, use `python -m tinytuya wizard` to extract these values.)
 5. **Restart Home Assistant**
 
 You'll get:
@@ -200,7 +200,9 @@ Read the complete reverse engineering journey in [docs/journey.md](docs/journey.
 - [Device Specification](docs/research/bjorn_device_spec.md) — Complete DP mapping with test results
 - [Network Discovery](docs/research/network_scan_and_tuya_discovery.md) — How to find your sauna on the network
 - [Huum UKU Reverse Engineering](docs/research/huum_uku_reverse_engineering.md) — The reference that inspired this project
+- [Huum HA Integration Analysis](docs/research/huum_ha_integration_analysis.md) — Lessons learned from the official Huum integration
 - [Sauna RE Landscape](docs/research/sauna_re_landscape.md) — Every sauna HA integration ever built
+- [Original Reverse Engineering Plan](reverse_engineering_guide.md) — The plan before we discovered it was Tuya
 
 ## License
 

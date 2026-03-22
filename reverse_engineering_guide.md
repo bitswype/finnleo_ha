@@ -1,6 +1,8 @@
 # Finnleo SaunaLogic2 — Reverse Engineering Guide
 
-## Goal
+> **Note:** This was the original plan before we discovered the SaunaLogic2 is a Tuya OEM device. None of the approaches below were needed — the actual solution required zero custom code. See the [README](README.md) for the real solution. This document is preserved as historical context.
+
+## Original Goal
 Build a Home Assistant custom integration for the Finnleo SaunaLogic2 sauna controller by reverse-engineering its cloud API.
 
 ---
