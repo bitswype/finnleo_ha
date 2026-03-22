@@ -208,8 +208,8 @@ The wizard will ask for your Tuya developer project's **Access ID** and **Access
 | `sensor.<your_sauna>_timer_remaining` | Sensor | Session countdown (minutes) |
 | `sensor.<your_sauna>_sauna_mode` | Sensor | Sauna mode (diagnostic) |
 | `sensor.<your_sauna>_sauna_state` | Sensor | Sauna state (diagnostic) |
-| `sensor.<your_sauna>_bluetooth` | Sensor | Bluetooth audio on/off (diagnostic) |
-| `sensor.<your_sauna>_delay_flag` | Sensor | Delay-related flag (diagnostic) |
+| `switch.<your_sauna>_bluetooth` | Switch | Bluetooth audio on/off (controllable) |
+| `sensor.<your_sauna>_dp_9` | Sensor | Unknown — may be delay-related (diagnostic) |
 
 Entity names are based on whatever you named your device in Smart Life during pairing.
 
@@ -249,12 +249,12 @@ The SaunaLogic2 exposes 10 Tuya data points. Only 4 are registered in the Tuya c
 
 ### Registered DPs (visible in Tuya Cloud API)
 
-| DP | Code | Type | Range | Description |
-|---|---|---|---|---|
-| 1 | `switch` | Boolean | true/false | Heater power on/off |
-| 2 | `temp_set` | Integer | 25-194 (°F) | Target temperature |
-| 3 | `temp_current` | Integer | 0-210 (°F) | Current temperature |
-| 10 | `countdown_left` | Integer | 0-1440 (min) | Session timer remaining |
+| DP | Code | Type | Range | Writable? | Description |
+|---|---|---|---|---|---|
+| 1 | `switch` | Boolean | true/false | **Yes** | Heater power on/off |
+| 2 | `temp_set` | Integer | 25-194 (°F) | **Yes** | Target temperature |
+| 3 | `temp_current` | Integer | 0-210 (°F) | No | Current temperature |
+| 10 | `countdown_left` | Integer | 0-1440 (min) | **No** | Session timer countdown (read-only — duration is set on the physical panel) |
 
 ### Hidden DPs (discovered via local probing)
 
@@ -264,7 +264,7 @@ The SaunaLogic2 exposes 10 Tuya data points. Only 4 are registered in the Tuya c
 | 9 | Integer | 0, 1 | Unknown | Observed to change when delay start was set from panel. Purpose not fully understood. |
 | 11 | Integer | 0 | Unknown | Purpose unknown. Never observed to change. |
 | 101 | Integer | 0-8 | **Yes** | Light color mode (see table below). Verified writable. |
-| 103 | Boolean | true/false | Not tested | Bluetooth audio status. Read confirmed, write not yet tested. |
+| 103 | Boolean | true/false | **Yes** | Bluetooth audio on/off. Verified writable. |
 | 105 | Integer | 1, 2 | Unknown | Observed: 1 when idle, 2 when running. May have other values. |
 
 ### Light Color Modes (DP 101)
@@ -344,6 +344,13 @@ entities:
             value: Purple
           - dps_val: 8
             value: Rainbow
+  - entity: switch
+    name: Bluetooth
+    icon: "mdi:bluetooth"
+    dps:
+      - id: 103
+        name: switch
+        type: boolean
   - entity: sensor
     name: Timer remaining
     class: duration
@@ -361,20 +368,12 @@ entities:
         type: string
         optional: true
   - entity: sensor
-    name: Delay flag
+    name: DP 9
     category: diagnostic
     dps:
       - id: 9
         name: sensor
         type: integer
-        optional: true
-  - entity: sensor
-    name: Bluetooth
-    category: diagnostic
-    dps:
-      - id: 103
-        name: sensor
-        type: boolean
         optional: true
   - entity: sensor
     name: Sauna state
@@ -395,12 +394,12 @@ entities:
 - **Heater power on/off** (DP 1) — verified bidirectionally (HA → sauna and sauna → HA)
 - **Target temperature** (DP 2) — verified, range 25-194°F
 - **Current temperature** (DP 3) — verified, real-time updates
-- **Session timer countdown** (DP 10) — verified, counts down in minutes
+- **Session timer countdown** (DP 10) — verified, counts down in minutes. **Read-only** — we tested writing custom durations (30, 45 minutes) and the device silently ignores them. The timer duration is configured on the physical panel and takes effect the next time the heater turns on.
 - **Light color control** (DP 101) — verified all 9 modes (Off, White, Red, Green, Blue, Yellow, Aqua, Purple, Rainbow)
+- **Bluetooth audio on/off** (DP 103) — verified writable. Turning on/off from HA was confirmed on the sauna display.
 
 ### Partially Understood
 
-- **DP 103 (Bluetooth)** — We confirmed this reads the Bluetooth audio on/off state. We have NOT tested whether writing `True`/`False` to this DP actually toggles Bluetooth. If you test this, please report back.
 - **DP 105 (Sauna state)** — Observed values: `1` when idle, `2` when the heater is running. There may be other values we haven't seen (e.g., a "cooling down" state, or a "delay active" state).
 - **DP 4 (Sauna mode)** — Always shows `ONLY_TRAD` on our test unit. We believe "TRAD" means "traditional" sauna mode. Other Sauna360 products (infrared saunas, combo units) may report different values here. We don't know if this DP is writable.
 - **DP 9** — We observed this change from `1` to `0` when a delay start was configured from the physical panel. It did NOT change back to `1` when the sauna was turned off. We don't fully understand this DP — it may be related to delay start, or it may indicate something else entirely.
@@ -409,9 +408,7 @@ entities:
 
 ### Not Yet Tested
 
-- **Setting the session timer duration** — When turning on the heater via Tuya, the timer auto-sets to 60 minutes. We have not tested whether writing a different value to DP 10 before or after turning on the heater would change the session duration. It might work.
 - **Delay start via Tuya** — We observed delay start from the physical panel, but we have not attempted to trigger a delay start via Tuya DPs. The delay countdown value was not visible in any known DP, but there may be undiscovered DPs that control this, or writing to DP 9 might trigger it.
-- **Writing to DP 103 (Bluetooth)** — Not tested. May allow toggling Bluetooth audio from HA.
 - **Writing to DP 4 (Sauna mode)** — Not tested. May not be writable if it reflects the hardware configuration.
 
 ### Known Limitations
@@ -422,12 +419,12 @@ entities:
 ### Help Wanted
 
 If you have a SaunaLogic2 and can test any of the above unknowns, please [open an issue](../../issues) or submit a PR. We're especially interested in:
-- Can DP 10 be written to set a custom timer duration?
-- Can DP 9 be written to trigger a delay start? What values?
-- What does DP 103 do when written to? Does it toggle Bluetooth?
+- Can DP 9 be written to trigger a delay start? What values does it accept?
+- Is there an undiscovered DP for the delay countdown timer?
 - What does DP 11 do? Has anyone seen it change from `0`?
-- Does DP 4 show different values on infrared or combo sauna models?
+- Does DP 4 show different values on infrared or combo sauna models? Can it be written?
 - Are there DPs beyond 105 that we haven't discovered?
+- What is the exact firmware minimum temperature threshold?
 
 ---
 
