@@ -1,0 +1,11 @@
+# APK files and decompiled source
+tools/apks/
+tools/jadx/
+
+# Device snapshots and credentials
+snapshot.json
+*.secrets
+
+# Python cache
+__pycache__/
+*.pyc
