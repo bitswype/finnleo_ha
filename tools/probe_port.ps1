@@ -1,3 +1,6 @@
+# Copyright 2026 Chris Keeser
+# SPDX-License-Identifier: Apache-2.0
+
 param([string]$IP, [int]$Port = 6668)
 try {
     $c = New-Object System.Net.Sockets.TcpClient

@@ -1,3 +1,7 @@
+<!--
+Copyright 2026 Chris Keeser
+SPDX-License-Identifier: Apache-2.0
+-->
 # Finnleo SaunaLogic2 — Reverse Engineering Guide
 
 > **Note:** This was the original plan before we discovered the SaunaLogic2 is a Tuya OEM device. None of the approaches below were needed — the actual solution required zero custom code. See the [README](README.md) for the real solution. This document is preserved as historical context.

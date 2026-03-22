@@ -1,3 +1,7 @@
+<!--
+Copyright 2026 Chris Keeser
+SPDX-License-Identifier: Apache-2.0
+-->
 # The Finnleo SaunaLogic2 Reverse Engineering Journey
 
 *A chronicle of building a Home Assistant integration for a sauna controller that doesn't want to be integrated.*

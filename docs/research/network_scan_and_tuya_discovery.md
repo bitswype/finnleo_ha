@@ -1,3 +1,7 @@
+<!--
+Copyright 2026 Chris Keeser
+SPDX-License-Identifier: Apache-2.0
+-->
 # Network Scan & Tuya Device Discovery
 
 ## Date: 2026-03-22

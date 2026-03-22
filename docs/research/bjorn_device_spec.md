@@ -1,3 +1,7 @@
+<!--
+Copyright 2026 Chris Keeser
+SPDX-License-Identifier: Apache-2.0
+-->
 # Björn — TyloHelo SL2 Tuya Device Specification
 
 ## Device Identity

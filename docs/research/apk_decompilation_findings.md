@@ -1,3 +1,7 @@
+<!--
+Copyright 2026 Chris Keeser
+SPDX-License-Identifier: Apache-2.0
+-->
 # SaunaLogic APK Decompilation — Findings
 
 ## THE HEADLINE: SaunaLogic is a Tuya White-Label App

@@ -1,3 +1,7 @@
+<!--
+Copyright 2026 Chris Keeser
+SPDX-License-Identifier: Apache-2.0
+-->
 # Huum Home Assistant Integration — Technical Analysis
 
 ## Overview

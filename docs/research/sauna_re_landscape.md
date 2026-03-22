@@ -1,3 +1,7 @@
+<!--
+Copyright 2026 Chris Keeser
+SPDX-License-Identifier: Apache-2.0
+-->
 # Sauna Reverse Engineering & HA Integration Landscape
 
 A survey of every known sauna reverse engineering effort and Home Assistant integration, with lessons for our Finnleo SaunaLogic2 project.
