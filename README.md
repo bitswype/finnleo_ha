@@ -96,8 +96,8 @@ The solution is to **pair the sauna directly to the Smart Life app**, bypassing 
    - The app will tell you to connect to the `SmartLife-XXXX` hotspot
 
 3. **Connect to the hotspot:**
-   - Go to your phone's WiFi settings
-   - Connect to the `SmartLife-XXXX` network (it will show as unsecured)
+   - The Smart Life app may automatically prompt you to connect to the `SmartLife-XXXX` network — if so, just confirm
+   - If it doesn't prompt automatically, go to your phone's WiFi settings and manually connect to the `SmartLife-XXXX` network (it will show as unsecured)
    - Return to the Smart Life app
 
 4. **Wait for pairing to complete:**
