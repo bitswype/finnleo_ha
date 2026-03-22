@@ -106,10 +106,13 @@ The solution is to **pair the sauna directly to the Smart Life app**, bypassing 
    - Name your device and tap Done
 
 ### Troubleshooting
+- **Display cycles through CON0 / CON1 / CONL / CON4 / CON3** — Don't panic. The display may rapidly cycle through several codes during the pairing process. This is normal and indicates the controller is negotiating the WiFi connection. Wait for it to settle.
+- **"CONL" stays on permanently** — This indicates a WiFi configuration error. Power cycle the sauna (breaker off for 10 seconds, then back on) and try again. If it flashes briefly during pairing but moves on, that's fine.
 - **"Network is unavailable"** — Make sure you're connected to the `SmartLife-XXXX` hotspot, not your home WiFi
-- **Can't find AP Mode** — Try a different device category, or try the **Tuya Smart** app (same account system, sometimes shows more options)
+- **Can't find AP Mode / "slow blink" option** — The option varies by app version. Try selecting a different device type (any WiFi device type will work). You can also try the **Tuya Smart** app (same account system, sometimes shows more pairing options).
+- **What "device category" means** — When Smart Life asks you to select a device type, it's asking what kind of device you're adding (smart plug, light bulb, thermostat, etc.). **The category doesn't matter for pairing** — it only affects the default UI the app shows you. What matters is that you select a **WiFi** device type (not Bluetooth, not Zigbee). Any WiFi device category will work — "Socket (Wi-Fi)", "Light Source (Wi-Fi)", or anything else with "(Wi-Fi)" in the name. The sauna will pair regardless of which category you pick.
 - **Pairing times out** — The sauna's pairing mode lasts about 2 minutes. If it times out, repeat the two-press Bluetooth button sequence to re-enter pairing mode
-- **"Con L" on the display** — WiFi configuration error. Power cycle the sauna (breaker off for 10 seconds, then back on) and try again
+- **Auto-scan finds nothing** — This is expected. Auto-scan looks for devices already on your network. The sauna in pairing mode is on its own hotspot, so you must use the manual AP Mode / "slow blink" flow instead.
 
 ---
 
@@ -200,15 +203,15 @@ The wizard will ask for your Tuya developer project's **Access ID** and **Access
 
 | Entity | Type | Description |
 |--------|------|-------------|
-| `climate.bjorn` | Climate | Heater on/off, target temperature, current temperature |
-| `select.bjorn_light` | Select | Light color mode (9 options) |
-| `sensor.bjorn_timer_remaining` | Sensor | Session countdown (minutes) |
-| `sensor.bjorn_sauna_mode` | Sensor | Sauna mode (diagnostic) |
-| `sensor.bjorn_sauna_state` | Sensor | Run state: 1=idle, 2=running (diagnostic) |
-| `sensor.bjorn_bluetooth` | Sensor | Bluetooth audio status (diagnostic) |
-| `sensor.bjorn_delay_flag` | Sensor | Delay flag (diagnostic) |
+| `climate.<your_sauna>` | Climate | Heater on/off, target temperature, current temperature |
+| `select.<your_sauna>_light` | Select | Light color mode (9 options) |
+| `sensor.<your_sauna>_timer_remaining` | Sensor | Session countdown (minutes) |
+| `sensor.<your_sauna>_sauna_mode` | Sensor | Sauna mode (diagnostic) |
+| `sensor.<your_sauna>_sauna_state` | Sensor | Sauna state (diagnostic) |
+| `sensor.<your_sauna>_bluetooth` | Sensor | Bluetooth audio on/off (diagnostic) |
+| `sensor.<your_sauna>_delay_flag` | Sensor | Delay-related flag (diagnostic) |
 
-(Entity names will reflect whatever you named your sauna in Smart Life.)
+Entity names are based on whatever you named your device in Smart Life during pairing.
 
 ---
 
@@ -255,14 +258,14 @@ The SaunaLogic2 exposes 10 Tuya data points. Only 4 are registered in the Tuya c
 
 ### Hidden DPs (discovered via local probing)
 
-| DP | Type | Values | Description |
-|---|---|---|---|
-| 4 | String | `ONLY_TRAD` | Sauna mode |
-| 9 | Integer | 0, 1 | Delay-related flag (1=normal, 0=delay set) |
-| 11 | Integer | 0 | Unknown |
-| 101 | Integer | 0-8 | Light color mode (see table below) |
-| 103 | Boolean | true/false | Bluetooth audio on/off |
-| 105 | Integer | 1, 2 | Sauna state (1=idle, 2=running) |
+| DP | Type | Values | Writable? | Description |
+|---|---|---|---|---|
+| 4 | String | `ONLY_TRAD` | Unknown | Sauna mode — likely "traditional." May differ on infrared/combo units. |
+| 9 | Integer | 0, 1 | Unknown | Observed to change when delay start was set from panel. Purpose not fully understood. |
+| 11 | Integer | 0 | Unknown | Purpose unknown. Never observed to change. |
+| 101 | Integer | 0-8 | **Yes** | Light color mode (see table below). Verified writable. |
+| 103 | Boolean | true/false | Not tested | Bluetooth audio status. Read confirmed, write not yet tested. |
+| 105 | Integer | 1, 2 | Unknown | Observed: 1 when idle, 2 when running. May have other values. |
 
 ### Light Color Modes (DP 101)
 
@@ -385,12 +388,46 @@ entities:
 
 ---
 
-## Known Limitations
+## What We Know and What We Don't
 
-- **Timer cannot be set via Tuya DPs** — it auto-sets to 60 minutes when the heater is turned on. The timer duration may only be configurable from the physical panel.
-- **Delay start countdown is not exposed** — Setting a delay from the panel changes DP 9, but the countdown value itself is not reported via any known DP.
-- **Firmware minimum temperature** — Setting the target below ~119°F may be overridden by the device firmware.
-- **Aggressive DP probing can lock out the device** — Requesting many unknown DPs at once caused the device to stop accepting local connections until power-cycled. Probe gently.
+### Confirmed Working
+
+- **Heater power on/off** (DP 1) — verified bidirectionally (HA → sauna and sauna → HA)
+- **Target temperature** (DP 2) — verified, range 25-194°F
+- **Current temperature** (DP 3) — verified, real-time updates
+- **Session timer countdown** (DP 10) — verified, counts down in minutes
+- **Light color control** (DP 101) — verified all 9 modes (Off, White, Red, Green, Blue, Yellow, Aqua, Purple, Rainbow)
+
+### Partially Understood
+
+- **DP 103 (Bluetooth)** — We confirmed this reads the Bluetooth audio on/off state. We have NOT tested whether writing `True`/`False` to this DP actually toggles Bluetooth. If you test this, please report back.
+- **DP 105 (Sauna state)** — Observed values: `1` when idle, `2` when the heater is running. There may be other values we haven't seen (e.g., a "cooling down" state, or a "delay active" state).
+- **DP 4 (Sauna mode)** — Always shows `ONLY_TRAD` on our test unit. We believe "TRAD" means "traditional" sauna mode. Other Sauna360 products (infrared saunas, combo units) may report different values here. We don't know if this DP is writable.
+- **DP 9** — We observed this change from `1` to `0` when a delay start was configured from the physical panel. It did NOT change back to `1` when the sauna was turned off. We don't fully understand this DP — it may be related to delay start, or it may indicate something else entirely.
+- **DP 11** — Always `0` in our testing. Purpose unknown.
+- **Firmware minimum temperature** — Setting the target to 100°F resulted in the device reporting 119°F. There may be a firmware-enforced minimum, but we haven't tested enough values to determine the exact threshold.
+
+### Not Yet Tested
+
+- **Setting the session timer duration** — When turning on the heater via Tuya, the timer auto-sets to 60 minutes. We have not tested whether writing a different value to DP 10 before or after turning on the heater would change the session duration. It might work.
+- **Delay start via Tuya** — We observed delay start from the physical panel, but we have not attempted to trigger a delay start via Tuya DPs. The delay countdown value was not visible in any known DP, but there may be undiscovered DPs that control this, or writing to DP 9 might trigger it.
+- **Writing to DP 103 (Bluetooth)** — Not tested. May allow toggling Bluetooth audio from HA.
+- **Writing to DP 4 (Sauna mode)** — Not tested. May not be writable if it reflects the hardware configuration.
+
+### Known Limitations
+
+- **Aggressive DP probing can lock out the device** — During our reverse engineering, requesting many unknown DPs at once caused the device to stop accepting local connections until it was power-cycled. If you're exploring undiscovered DPs, probe them **one at a time** and be prepared to flip the breaker if the device stops responding.
+- **The Tuya cloud only registers 4 of the 10+ DPs** — The official Tuya cloud integration will only see power, target temp, current temp, and timer. Light control and all diagnostic sensors require `tuya_local` for local protocol access.
+
+### Help Wanted
+
+If you have a SaunaLogic2 and can test any of the above unknowns, please [open an issue](../../issues) or submit a PR. We're especially interested in:
+- Can DP 10 be written to set a custom timer duration?
+- Can DP 9 be written to trigger a delay start? What values?
+- What does DP 103 do when written to? Does it toggle Bluetooth?
+- What does DP 11 do? Has anyone seen it change from `0`?
+- Does DP 4 show different values on infrared or combo sauna models?
+- Are there DPs beyond 105 that we haven't discovered?
 
 ---
 
@@ -416,7 +453,7 @@ Read the complete reverse engineering journey in [docs/journey.md](docs/journey.
 ## Research
 
 - [APK Decompilation Findings](docs/research/apk_decompilation_findings.md) — How we discovered SaunaLogic is Tuya
-- [Device Specification](docs/research/bjorn_device_spec.md) — Complete DP mapping with test results
+- [Device Specification](docs/research/bjorn_device_spec.md) — Complete DP mapping with test results (file named after our test sauna)
 - [Network Discovery](docs/research/network_scan_and_tuya_discovery.md) — How to find your sauna on the network
 - [Huum UKU Reverse Engineering](docs/research/huum_uku_reverse_engineering.md) — The reference that inspired this project
 - [Huum HA Integration Analysis](docs/research/huum_ha_integration_analysis.md) — Lessons learned from the official Huum integration
