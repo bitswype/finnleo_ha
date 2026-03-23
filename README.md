@@ -16,6 +16,8 @@ limitations under the License.
 
 # Finnleo SaunaLogic2 - Home Assistant Integration Guide
 
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/bitswype)
+
 The Finnleo SaunaLogic2 is a Tuya OEM device. This means you can control it from Home Assistant using existing Tuya integrations - no custom code required.
 
 This repository documents the reverse engineering journey that led to this discovery, provides the complete device specification (data points), and includes a ready-to-use device definition for the [`tuya_local`](https://github.com/make-all/tuya_local) HACS integration.
