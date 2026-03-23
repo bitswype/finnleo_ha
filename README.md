@@ -32,10 +32,9 @@ This repository documents the reverse engineering journey that led to this disco
 - [Integration Option 2: Tuya Cloud (Official Integration)](#integration-option-2-tuya-cloud-official-integration)
 - [Data Points](#data-points)
 - [Device Definition](#device-definition)
-- [Known Limitations](#known-limitations)
+- [What We Know and What We Don't](#what-we-know-and-what-we-dont)
 - [Applicability](#applicability)
 - [The Full Story](#the-full-story)
-- [Research](#research)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
@@ -185,7 +184,7 @@ Keep your local key safe. Anyone with your device ID and local key can control y
 ### Setup
 
 1. Install tuya_local from HACS (search for "Tuya Local")
-2. Copy the [device definition YAML](#device-definition) below to:
+2. Download [`tylohelo_sl2_sauna.yaml`](tylohelo_sl2_sauna.yaml) and copy it to:
    ```
    /config/custom_components/tuya_local/devices/tylohelo_sl2_sauna.yaml
    ```
@@ -285,105 +284,7 @@ The SaunaLogic2 exposes 10 Tuya data points. Only 4 are registered in the Tuya c
 
 ## Device Definition
 
-Copy this file to `/config/custom_components/tuya_local/devices/tylohelo_sl2_sauna.yaml`:
-
-```yaml
-# Copyright 2026 Chris Keeser
-# SPDX-License-Identifier: Apache-2.0
-
-name: Sauna
-products:
-  - id: acl5qrawgmjajabn
-    manufacturer: TyloHelo
-    model: SaunaLogic2
-entities:
-  - entity: climate
-    translation_only_key: heater
-    dps:
-      - id: 1
-        name: hvac_mode
-        type: boolean
-        mapping:
-          - dps_val: true
-            value: heat
-          - dps_val: false
-            value: "off"
-      - id: 2
-        name: temperature
-        type: integer
-        unit: F
-        range:
-          min: 25
-          max: 194
-      - id: 3
-        name: current_temperature
-        type: integer
-  - entity: select
-    name: Light
-    icon: "mdi:lightbulb"
-    dps:
-      - id: 101
-        name: option
-        type: integer
-        mapping:
-          - dps_val: 0
-            value: "Off"
-          - dps_val: 1
-            value: White
-          - dps_val: 2
-            value: Red
-          - dps_val: 3
-            value: Green
-          - dps_val: 4
-            value: Blue
-          - dps_val: 5
-            value: Yellow
-          - dps_val: 6
-            value: Aqua
-          - dps_val: 7
-            value: Purple
-          - dps_val: 8
-            value: Rainbow
-  - entity: switch
-    name: Bluetooth
-    icon: "mdi:bluetooth"
-    dps:
-      - id: 103
-        name: switch
-        type: boolean
-  - entity: sensor
-    name: Timer remaining
-    class: duration
-    dps:
-      - id: 10
-        name: sensor
-        type: integer
-        unit: min
-  - entity: sensor
-    name: Sauna mode
-    category: diagnostic
-    dps:
-      - id: 4
-        name: sensor
-        type: string
-        optional: true
-  - entity: sensor
-    name: DP 9
-    category: diagnostic
-    dps:
-      - id: 9
-        name: sensor
-        type: integer
-        optional: true
-  - entity: sensor
-    name: Sauna state
-    category: diagnostic
-    dps:
-      - id: 105
-        name: sensor
-        type: integer
-        optional: true
-```
+Download [`tylohelo_sl2_sauna.yaml`](tylohelo_sl2_sauna.yaml) and copy it to `/config/custom_components/tuya_local/devices/`.
 
 ---
 
@@ -444,18 +345,6 @@ If you have a different Sauna360 sauna with a SaunaLogic2 controller, this devic
 ## The Full Story
 
 Read the complete reverse engineering journey in [docs/journey.md](docs/journey.md).
-
----
-
-## Research
-
-- [APK Decompilation Findings](docs/research/apk_decompilation_findings.md) - How the SaunaLogic/Tuya connection was discovered
-- [Device Specification](docs/research/bjorn_device_spec.md) - Complete DP mapping with test results
-- [Network Discovery](docs/research/network_scan_and_tuya_discovery.md) - How to find your sauna on the network
-- [Huum UKU Reverse Engineering](docs/research/huum_uku_reverse_engineering.md) - The reference that inspired this project
-- [Huum HA Integration Analysis](docs/research/huum_ha_integration_analysis.md) - Lessons learned from the official Huum integration
-- [Sauna RE Landscape](docs/research/sauna_re_landscape.md) - Every sauna HA integration ever built
-- [Original Reverse Engineering Plan](reverse_engineering_guide.md) - The plan before the Tuya discovery
 
 ---
 
