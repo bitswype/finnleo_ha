@@ -5,6 +5,16 @@
 # Copy this file to: /config/custom_components/tuya_local/devices/
 #
 # See https://github.com/bitswype/finnleo_ha for full documentation.
+#
+# Changelog:
+# - DP 4 (Heat Type): changed from read-only sensor to select entity.
+#   Confirmed writable. Values: IR, TRAD, NONE. Validated on hardware May 2026.
+# - DP 9 (60 Min Timer): changed from diagnostic integer sensor to switch entity.
+#   Confirmed bidirectional control. 0 = no timer, 1 = 60 min auto-shutoff.
+#   Validated on hardware May 2026.
+# - DP 105 (Delay Timer): renamed from 'Sauna state', added unit: h.
+#   Delay only takes effect when set after heater is turned on.
+#   Countdown display appears in Tuya app but is not exposed as a separate DP.
 
 name: Sauna
 products:
@@ -74,27 +84,38 @@ entities:
         name: sensor
         type: integer
         unit: min
-  - entity: sensor
-    name: Sauna mode
-    category: diagnostic
+  - entity: select
+    name: Heat Type
+    icon: "mdi:fire"
     dps:
       - id: 4
-        name: sensor
+        name: option
         type: string
-        optional: true
-  - entity: sensor
-    name: DP 9
-    category: diagnostic
+        mapping:
+          - dps_val: "IR"
+            value: Infrared
+          - dps_val: "TRAD"
+            value: Traditional
+          - dps_val: "NONE"
+            value: "None"
+  - entity: switch
+    name: 60 Min Timer
+    icon: "mdi:timer"
     dps:
       - id: 9
-        name: sensor
+        name: switch
         type: integer
-        optional: true
+        mapping:
+          - dps_val: 0
+            value: false
+          - dps_val: 1
+            value: true
   - entity: sensor
-    name: Sauna state
+    name: Delay Timer
     category: diagnostic
     dps:
       - id: 105
         name: sensor
         type: integer
+        unit: h
         optional: true
